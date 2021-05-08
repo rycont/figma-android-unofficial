@@ -34,6 +34,7 @@ dependencies:
     git:
       url: https://github.com/rycont/dart-ttf-parser.git
   url_launcher: ^6.0.3
+  uni_links: ^0.5.1
 
 dev_dependencies:
   flutter_test:

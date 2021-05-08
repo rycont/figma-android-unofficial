@@ -2,7 +2,8 @@
     package="com.example.figma_unofficial">
    <application
         android:label="figma_unofficial"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -37,10 +38,20 @@
               <category android:name="android.intent.category.DEFAULT" />
               <data android:mimeType="*/*" />
           </intent-filter>
+
           <intent-filter>
               <action android:name="android.intent.action.SEND_MULTIPLE" />
               <category android:name="android.intent.category.DEFAULT" />
               <data android:mimeType="*/*" />
+          </intent-filter>
+            <!-- Deep Links -->
+          <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <!-- Accepts URIs that begin with YOUR_SCHEME://YOUR_HOST -->
+            <data
+              android:scheme="figma" />
           </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

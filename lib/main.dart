@@ -2,10 +2,13 @@ import 'dart:io';
 
 import 'package:figma_unofficial/fileManager.dart';
 import 'package:figma_unofficial/server.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uni_links/uni_links.dart';
 
 const SERVICE_ORIGIN = 'https://www.figma.com';
 
@@ -32,15 +35,34 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  InAppWebViewController? webView;
+  String? initString;
+  CookieManager cookieManager = CookieManager.instance();
+
+  void listenURLIntent() async {
+    uriLinkStream.listen((Uri? uri) {
+      if (webView != null) {
+        webView!.loadUrl(
+            urlRequest: URLRequest(
+                url: Uri.parse(uri
+                    .toString()
+                    .replaceFirst('figma://', 'https://figma.com/'))));
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    listenURLIntent();
     print("파일 받을 준비 됨!");
     ReceiveSharingIntent.getInitialMedia().then((value) {
       print('파일 진짜받음 ㄷㄷ');
+      // webView
       value.forEach((file) {
         registerFile(file.path);
       });
+
       return null;
     });
   }
@@ -49,63 +71,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-          body: InAppWebView(
-        initialUrlRequest:
-            URLRequest(url: Uri.parse('https://figma.com/login')),
-        onWebViewCreated: (controller) {
-          controller.addJavaScriptHandler(
-              handlerName: 'MESSAGE_HANDELR',
-              callback: (e) {
-                // print('뭔가됨');
-                final String action = e[0][0][0];
-                final data = e[0][0][1];
-                print("뭔가됨 $action $data");
-                if (action == 'startAppAuth') {
-                  launch("$SERVICE_ORIGIN${data["grantPath"]}");
-                  print("열기주소! $SERVICE_ORIGIN${data["grantPath"]}");
-                }
-              });
-        },
-        onLoadStart: (controller, url) {
-          controller.evaluateJavascript(source: """
-            function sendPost(...arg) {
-              window.flutter_inappwebview.callHandler('MESSAGE_HANDELR', arg)
-            }
-            window.__figmaDesktop = {
-              version: 36,
-              fileBrowser: true,
-              postMessage(...e) {
-                console.log('포스트포스트')
-                sendPost(e)
-              },
-              registerCallback(...e) {
-                console.log('registerCallback', e);
-              },
-              promiseMessage(...e) {
-                console.log('promiseMessage', e);
-              },
-              registerCallback(...e) {
-                console.log('registerCallback', e);
-              },
-              setMessageHandler(...e) {
-                console.log('setMessageHandler', e);
-              },
-            };
-          """);
-          print("로드시작! $url");
-        },
-        onConsoleMessage: (controller, message) => {print("웹뷰로그 $message")},
-        onLoadStop: (controller, title) {
-          controller.evaluateJavascript(source: """
-            const newMeta = document.createElement('meta');
-            newMeta.name = "viewport"
-            newMeta.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-            document.head.appendChild(newMeta)
-            console.log(newMeta)
-          """);
-          print("주입함");
-        },
-      )),
+        body: Text('예에')
+      )
     );
   }
 }
