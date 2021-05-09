@@ -21,7 +21,7 @@ startServer() async {
       if (requestedPath != null)
         request.response.write(getFontBinary(requestedPath));
     } else
-      request.response.write(json.encode({"asdf": "sdfg"}));
+      request.response.write("Server is running correctly :)");
     await request.response.close();
   }
 }
